@@ -1,4 +1,11 @@
+# IntelliJ project files
+itach.iml
+.idea
+
+# Eclipse project files
 .classpath
 .project
 .settings
+
+# maven output
 target
