@@ -1,19 +1,17 @@
 package com.github.debaser121.itach;
 
-import static com.github.debaser121.itach.FluentChannelHandler.simpleDatagramChannelInboundHandler;
+import static com.github.debaser121.itach.FluentChannelHandler.simpleChannelInboundHandler;
 
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 
-import com.google.common.base.Charsets;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
-import io.netty.channel.socket.DatagramPacket;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +32,17 @@ public class BeaconListener {
                     .option( ChannelOption.IP_MULTICAST_IF, networkInterface )
                     .option( ChannelOption.SO_REUSEADDR, true )
                     .localAddress( 9131 )
-                    .handler( simpleDatagramChannelInboundHandler( (ChannelHandlerContext ctx, DatagramPacket msg) -> {
-                        final String content = msg.content().toString( Charsets.US_ASCII );
-                        LOG.info( "read msg with content: {}", content );
-                    } ) );
+                    .handler( new ChannelInitializer<Channel>() {
+                        @Override
+                        protected void initChannel(final Channel ch) throws Exception {
+                            ch.pipeline()
+                              .addLast( AmxbMessageDecoder.getInstance() )
+                              .addLast( BeaconDecoder.getInstance() )
+                              .addLast( simpleChannelInboundHandler( Beacon.class, (ctx, msg) -> {
+                                  LOG.info( "Got a beacon: {}", msg );
+                              } ) );
+                        }
+                    } );
 
             final DatagramChannel channel = (DatagramChannel) bootstrap.bind().sync().channel();
 

@@ -7,24 +7,23 @@ import java.util.Optional;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.socket.DatagramPacket;
 
 public class FluentChannelHandler extends ChannelHandlerAdapter {
 
-    public static FluentSimpleChannelInboundHandler<DatagramPacket> simpleDatagramChannelInboundHandler
-            (OnChannelRead0<DatagramPacket> onChannelRead0) {
-        return new FluentSimpleChannelInboundHandler<DatagramPacket>( DatagramPacket.class,
-                                                                      onChannelRead0,
-                                                                      Optional.empty(),
-                                                                      Optional.empty(),
-                                                                      Optional.empty(),
-                                                                      Optional.empty(),
-                                                                      Optional.empty(),
-                                                                      Optional.empty(),
-                                                                      Optional.empty(),
-                                                                      Optional.empty(),
-                                                                      Optional.empty(),
-                                                                      Optional.empty() );
+    public static <T> FluentSimpleChannelInboundHandler<T> simpleChannelInboundHandler
+            (Class<T> messageClass, OnChannelRead0<T> onChannelRead0) {
+        return new FluentSimpleChannelInboundHandler<T>( messageClass,
+                                                         onChannelRead0,
+                                                         Optional.empty(),
+                                                         Optional.empty(),
+                                                         Optional.empty(),
+                                                         Optional.empty(),
+                                                         Optional.empty(),
+                                                         Optional.empty(),
+                                                         Optional.empty(),
+                                                         Optional.empty(),
+                                                         Optional.empty(),
+                                                         Optional.empty() );
     }
 
     public static class FluentSimpleChannelInboundHandler<I> extends SimpleChannelInboundHandler<I> {
