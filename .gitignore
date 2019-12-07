@@ -3,6 +3,7 @@ itach.iml
 .idea
 
 # Eclipse project files
+.ceylon
 .classpath
 .project
 .settings

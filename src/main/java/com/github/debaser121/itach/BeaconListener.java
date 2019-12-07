@@ -5,14 +5,17 @@ import static com.github.debaser121.itach.FluentChannelHandler.simpleChannelInbo
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.net.URI;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
+import io.netty.channel.socket.nio.NioSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +43,10 @@ public class BeaconListener {
                               .addLast( BeaconDecoder.getInstance() )
                               .addLast( simpleChannelInboundHandler( Beacon.class, (ctx, msg) -> {
                                   LOG.info( "Got a beacon: {}", msg );
+                                  ctx.fireChannelRead( msg );
+                              } ) )
+                              .addLast( simpleChannelInboundHandler( Beacon.class, (ctx, msg) -> {
+                                  makeCall( msg.getConfigUrl(), workerGroup );
                               } ) );
                         }
                     } );
@@ -55,5 +62,29 @@ public class BeaconListener {
         finally {
             workerGroup.shutdownGracefully();
         }
+    }
+
+    private static void makeCall(final URI deviceUri, final NioEventLoopGroup workerGroup) {
+        final Bootstrap bootstrap = new Bootstrap()
+                .group( workerGroup )
+                .channel( NioSocketChannel.class )
+                .handler( new ChannelInitializer<Channel>() {
+                    @Override
+                    protected void initChannel(final Channel ch) throws Exception {
+                        ch.pipeline()
+                          .addLast( new GetDevicesCommandRequestEncoder() )
+                          .addLast( new GetDevicesCommandResponseDecoder() );
+                    }
+                } );
+
+        bootstrap.connect( deviceUri.getHost(), 4998 ).addListener( (ChannelFuture f) -> {
+            if( f.isSuccess() ) {
+                f.channel().writeAndFlush( new GetDevicesCommand.Request() );
+            }
+            else {
+                LOG.error( "an error occurred", f.cause() );
+            }
+        } );
+
     }
 }

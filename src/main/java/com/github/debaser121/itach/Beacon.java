@@ -3,6 +3,7 @@ package com.github.debaser121.itach;
 import static com.google.common.base.Objects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
+import java.net.URI;
 import java.util.Objects;
 
 /**
@@ -16,7 +17,7 @@ public class Beacon {
     private final String model;
     private final String revision;
     private final String pkgLevel;
-    private final String configUrl;
+    private final URI configUrl;
     private final String pcbPn;
     private final String status;
 
@@ -48,7 +49,7 @@ public class Beacon {
                   final String model,
                   final String revision,
                   final String pkgLevel,
-                  final String configUrl,
+                  final URI configUrl,
                   final String pcbPn,
                   final String status) {
         this.uuid = requireNonNull( uuid );
@@ -86,7 +87,7 @@ public class Beacon {
         return pkgLevel;
     }
 
-    public String getConfigUrl() {
+    public URI getConfigUrl() {
         return configUrl;
     }
 

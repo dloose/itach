@@ -1,5 +1,6 @@
 package com.github.debaser121.itach;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class BeaconDecoder extends MessageToMessageDecoder<Map<String, String>> 
                              msg.get( MODEL_PROP ),
                              msg.get( REVISION_PROP ),
                              msg.get( PKG_LEVEL_PROP ),
-                             msg.get( CONFIG_URL_PROP ),
+                             URI.create( msg.get( CONFIG_URL_PROP ) ),
                              msg.get( PCB_PN_PROP ),
                              msg.get( STATUS_PROP ) ) );
     }
